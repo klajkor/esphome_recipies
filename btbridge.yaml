@@ -19,7 +19,7 @@ time:
                 XiaomiMijia["Temperature"] = id(living_room_temperature).state; 
                 XiaomiMijia["Humidity"] = id(living_room_humidity).state; 
                 root["TempUnit"] = "C";
-      - seconds: 30
+      - seconds: 20
         minutes: /2
         then:
           - mqtt.publish_json:
@@ -31,6 +31,18 @@ time:
                 XiaomiMijia["Temperature"] = id(sleeping_room_temperature).state; 
                 XiaomiMijia["Humidity"] = id(sleeping_room_humidity).state; 
                 root["TempUnit"] = "C";
+      - seconds: 40
+        minutes: /2
+        then:
+          - mqtt.publish_json:
+              topic: ${mqtt_base_topic}/kitchen_temperature/${mqtt_topic_postfix}
+              retain: True
+              payload: |-
+                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
+                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
+                XiaomiMijia["Temperature"] = id(kitchen_temperature).state; 
+                XiaomiMijia["Humidity"] = id(kitchen_humidity).state; 
+                root["TempUnit"] = "C";
 
 esp32:
   board: wemos_d1_mini32
@@ -39,6 +51,7 @@ esp32:
 
 substitutions:
   mqtt_base_topic: "tele/btbridge"
+  mqtt_base_topic_esphome: "esphometele/btbridge"
   mqtt_topic_postfix: "SENSOR"
 
 # Enable logging
@@ -48,7 +61,7 @@ mqtt:
   broker: 192.168.1.13
   username: !secret mqtt_username
   password: !secret mqtt_password
-  topic_prefix: ${mqtt_base_topic}
+  topic_prefix: ${mqtt_base_topic_esphome}
   
 
 ota:
@@ -73,10 +86,16 @@ sensor:
     mac_address: "A4:C1:38:CA:AE:41"    
     temperature:
       name: "Living Room Temperature"
-      id: living_room_temperature              
+      id: living_room_temperature
+      filters:
+        - filter_out: nan
+      accuracy_decimals: 1
+      unit_of_measurement: '°C'
     humidity:
       name: "Living Room Humidity"
       id: "living_room_humidity"
+      accuracy_decimals: 0
+      unit_of_measurement: '%'
     battery_level:
       name: "Living Room Battery Level"
     battery_voltage:
@@ -88,14 +107,36 @@ sensor:
     temperature:
       name: "Sleeping Room Temperature"
       id: sleeping_room_temperature              
+      accuracy_decimals: 1
+      unit_of_measurement: '°C'
     humidity:
       name: "Sleeping Room Humidity"
       id: "sleeping_room_humidity"
+      accuracy_decimals: 0
+      unit_of_measurement: '%'
     battery_level:
       name: "Sleeping Room Battery Level"
     battery_voltage:
       name: "Sleeping Room Battery Voltage"
     signal_strength:
       name: "Sleeping Room Signal"
+  - platform: pvvx_mithermometer
+    mac_address: "A4:C1:38:98:2E:5F"    
+    temperature:
+      name: "Kitchen Temperature"
+      id: kitchen_temperature              
+      accuracy_decimals: 1
+      unit_of_measurement: '°C'
+    humidity:
+      name: "Kitchen Humidity"
+      id: "kitchen_humidity"
+      accuracy_decimals: 0
+      unit_of_measurement: '%'
+    battery_level:
+      name: "Kitchen Battery Level"
+    battery_voltage:
+      name: "Kitchen Battery Voltage"
+    signal_strength:
+      name: "Kitchen Signal"
     
 
