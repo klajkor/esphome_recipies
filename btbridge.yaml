@@ -5,44 +5,44 @@ time:
   - platform: sntp
     id: sntp_time
     timezone: UTC
-    on_time:
-      # Every 2 minutes
-      - seconds: 0
-        minutes: /2
-        then:
-          - mqtt.publish_json:
-              topic: ${mqtt_base_topic}/living_room_temperature/${mqtt_topic_postfix}
-              retain: True
-              payload: |-
-                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
-                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
-                XiaomiMijia["Temperature"] = id(living_room_temperature).state; 
-                XiaomiMijia["Humidity"] = id(living_room_humidity).state; 
-                root["TempUnit"] = "C";
-      - seconds: 20
-        minutes: /2
-        then:
-          - mqtt.publish_json:
-              topic: ${mqtt_base_topic}/sleeping_room_temperature/${mqtt_topic_postfix}
-              retain: True
-              payload: |-
-                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
-                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
-                XiaomiMijia["Temperature"] = id(sleeping_room_temperature).state; 
-                XiaomiMijia["Humidity"] = id(sleeping_room_humidity).state; 
-                root["TempUnit"] = "C";
-      - seconds: 40
-        minutes: /2
-        then:
-          - mqtt.publish_json:
-              topic: ${mqtt_base_topic}/kitchen_temperature/${mqtt_topic_postfix}
-              retain: True
-              payload: |-
-                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
-                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
-                XiaomiMijia["Temperature"] = id(kitchen_temperature).state; 
-                XiaomiMijia["Humidity"] = id(kitchen_humidity).state; 
-                root["TempUnit"] = "C";
+##    on_time:
+##      # Every 2 minutes
+##      - seconds: 0
+##        minutes: /2
+##        then:
+##          - mqtt.publish_json:
+##              topic: ${mqtt_tasmota_base_topic}/living_room_temperature/${mqtt_tasmota_topic_postfix}
+##              retain: True
+##              payload: |-
+##                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
+##                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
+##                XiaomiMijia["Temperature"] = id(living_room_temperature).state; 
+##                XiaomiMijia["Humidity"] = id(living_room_humidity).state; 
+##                root["TempUnit"] = "C";
+##      - seconds: 20
+##        minutes: /2
+##        then:
+##          - mqtt.publish_json:
+##              topic: ${mqtt_tasmota_base_topic}/sleeping_room_temperature/${mqtt_tasmota_topic_postfix}
+##              retain: True
+##              payload: |-
+##                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
+##                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
+##                XiaomiMijia["Temperature"] = id(sleeping_room_temperature).state; 
+##                XiaomiMijia["Humidity"] = id(sleeping_room_humidity).state; 
+##                root["TempUnit"] = "C";
+##      - seconds: 40
+##        minutes: /2
+##        then:
+##          - mqtt.publish_json:
+##              topic: ${mqtt_tasmota_base_topic}/kitchen_temperature/${mqtt_tasmota_topic_postfix}
+##              retain: True
+##              payload: |-
+##                root["Time"] = id(sntp_time).now().strftime("%Y-%m-%dT%H:%M:%S").c_str();
+##                JsonObject XiaomiMijia = root.createNestedObject("XiaomiMijia");                
+##                XiaomiMijia["Temperature"] = id(kitchen_temperature).state; 
+##                XiaomiMijia["Humidity"] = id(kitchen_humidity).state; 
+##                root["TempUnit"] = "C";
 
 esp32:
   board: wemos_d1_mini32
@@ -50,9 +50,10 @@ esp32:
     type: arduino
 
 substitutions:
-  mqtt_base_topic: "tele/btbridge"
-  mqtt_base_topic_esphome: "esphometele/btbridge"
-  mqtt_topic_postfix: "SENSOR"
+  device_id: "btbridge"
+  mqtt_tasmota_base_topic: tele/${device_id}
+  mqtt_esphome_base_topic: esphometele/${device_id}
+  mqtt_tasmota_topic_postfix: "SENSOR"
 
 # Enable logging
 logger:
@@ -61,7 +62,7 @@ mqtt:
   broker: 192.168.1.13
   username: !secret mqtt_username
   password: !secret mqtt_password
-  topic_prefix: ${mqtt_base_topic_esphome}
+  topic_prefix: ${mqtt_esphome_base_topic}
   
 
 ota:
@@ -100,6 +101,7 @@ sensor:
       name: "Living Room Battery Level"
     battery_voltage:
       name: "Living Room Battery Voltage"
+      accuracy_decimals: 2
     signal_strength:
       name: "Living Room Signal"
   - platform: pvvx_mithermometer
@@ -118,6 +120,7 @@ sensor:
       name: "Sleeping Room Battery Level"
     battery_voltage:
       name: "Sleeping Room Battery Voltage"
+      accuracy_decimals: 2
     signal_strength:
       name: "Sleeping Room Signal"
   - platform: pvvx_mithermometer
@@ -136,6 +139,7 @@ sensor:
       name: "Kitchen Battery Level"
     battery_voltage:
       name: "Kitchen Battery Voltage"
+      accuracy_decimals: 2
     signal_strength:
       name: "Kitchen Signal"
     
