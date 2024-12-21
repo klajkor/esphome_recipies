@@ -47,7 +47,7 @@ time:
 esp32:
   board: wemos_d1_mini32
   framework:
-    type: arduino
+    type: esp-idf
 
 substitutions:
   device_id: "btbridge"
@@ -66,6 +66,7 @@ mqtt:
   
 
 ota:
+  platform: esphome
   password: ""
 
 wifi:
@@ -79,10 +80,32 @@ wifi:
 
 web_server:
   port: 80
+  version: 3  
 
 esp32_ble_tracker:
 
 sensor:
+  - platform: pvvx_mithermometer
+    mac_address: "A4:C1:38:06:BA:D8"    
+    temperature:
+      name: "SleepR Window Temperature"
+      id: sleepr_window_temperature
+      filters:
+        - filter_out: nan
+      accuracy_decimals: 1
+      unit_of_measurement: '°C'
+    humidity:
+      name: "SleepR Window Humidity"
+      id: "sleepr_window_humidity"
+      accuracy_decimals: 0
+      unit_of_measurement: '%'
+    battery_level:
+      name: "SleepR Window Battery Level"
+    battery_voltage:
+      name: "SleepR Window Battery Voltage"
+      accuracy_decimals: 2
+    signal_strength:
+      name: "SleepR Window Signal"
   - platform: pvvx_mithermometer
     mac_address: "A4:C1:38:CA:AE:41"    
     temperature:
@@ -142,26 +165,6 @@ sensor:
       accuracy_decimals: 2
     signal_strength:
       name: "Kitchen Signal"
-  - platform: pvvx_mithermometer
-    mac_address: "A4:C1:38:06:BA:D8"    
-    temperature:
-      name: "SleepR Window Temperature"
-      id: sleepr_window_temperature
-      filters:
-        - filter_out: nan
-      accuracy_decimals: 1
-      unit_of_measurement: '°C'
-    humidity:
-      name: "SleepR Window Humidity"
-      id: "sleepr_window_humidity"
-      accuracy_decimals: 0
-      unit_of_measurement: '%'
-    battery_level:
-      name: "SleepR Window Battery Level"
-    battery_voltage:
-      name: "SleepR Window Battery Voltage"
-      accuracy_decimals: 2
-    signal_strength:
-      name: "SleepR Window Signal"
+
   
 
